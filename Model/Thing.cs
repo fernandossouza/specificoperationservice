@@ -11,6 +11,6 @@ namespace specificoperationservice.Model
         public int? currentThingId { get; set; }
         [NotMapped]
         public Thing currentThing { get; set; }
-        public string phisycalConn{get;set;}
+        public string physicalConnection{get;set;}
     }
 }

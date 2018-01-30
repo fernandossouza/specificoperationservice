@@ -5,7 +5,11 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
+using System.Data;
+using Dapper;
 using Newtonsoft.Json;
 using specificoperationservice.Model;
 using specificoperationservice.Service.Interface;
@@ -23,6 +27,27 @@ namespace specificoperationservice.Service
 
         public async Task<bool> WriteOrder(ProductionOrder productionOrder)
         {
+            bool returnBool
+
+            switch(productionOrder.typeDescription.ToString().ToLower())
+            {
+                case "tira":
+                    returnBool = await OpTypeTira(productionOrder);
+                    break;
+                case "liga":
+                    returnBool = true;
+                    break;
+                default:
+                    returnBool = false;
+                    break;
+            }
+            
+            return returnBool;
+        }
+
+        private async Task<bool> OpTypeTira(ProductionOrder productionOrder)
+        {
+            List<Thing> thingsGetList = new List<Thing>();
             var phases = productionOrder.recipe.phases;
 
             foreach (var phase in phases)
@@ -37,22 +62,50 @@ namespace specificoperationservice.Service
 
                     foreach(var thingId in thingGroup.thingsIds)
                     {
-                        var thing = await GetThingApi(thingId);
+                        Thing thing;
 
-                        await PutETL(value,tag.physicalTag,thing.phisycalConn);
+                        thing = thingsGetList.Where(x=> x.thingId == thingId).FirstOrDefault();
+                        if(thing == null)
+                        {
+                            thing = await GetThingApi(thingId);
+                            if(thing != null)
+                                thingsGetList.Add(thing);
+                        }
+                        if(string.IsNullOrEmpty(thing.physicalConnection))
+                            continue;
+
+                        var e = CreateCommand(value,tag.physicalTag,thing.physicalConnection);
                     }
 
                 }
             }
-
-            
             return true;
         }
 
-        private async Task<bool> PutETL(string value, string tag, string workstation)
+        private async Task<bool> CreateCommand(string value, string tag, string workstation)
         {
+            string command = string.Empty;
+
+            command = "SELECT public.spi_sp_write_per_name('" + tag + "','" + workstation + "','" + value + "')";
+            var result = await ExecuteCommand(command);
+
             return true;
 
+        }
+
+        private async Task<IEnumerable<dynamic>> ExecuteCommand(string commandSQL)
+        {
+          
+            IEnumerable<dynamic> dbResult;
+            using(IDbConnection dbConnection = new NpgsqlConnection(_configuration["stringInterlevelConnection"]))
+            {
+                dbConnection.Open();
+                dbResult = await dbConnection.QueryAsync<dynamic>(commandSQL);
+            }
+
+            return dbResult;
+           
+            
         }
 
         private async Task<Tag> GetTagApi(int tagId)
