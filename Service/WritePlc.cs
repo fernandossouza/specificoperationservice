@@ -27,7 +27,7 @@ namespace specificoperationservice.Service
 
         public async Task<bool> WriteOrder(ProductionOrder productionOrder)
         {
-            bool returnBool
+            bool returnBool;
 
             switch(productionOrder.typeDescription.ToString().ToLower())
             {
