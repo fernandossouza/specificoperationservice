@@ -12,6 +12,8 @@ namespace specificoperationservice.Model
         [Required]
         [MaxLength(50)]
         public string setupValue { get; set; }
+        public string setupValueMin { get; set; }
+        public string setupValueMax { get; set; }
         [Required]
         [MaxLength(50)]
         public string measurementUnit { get; set; }

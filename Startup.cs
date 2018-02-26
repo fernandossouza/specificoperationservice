@@ -34,6 +34,9 @@ namespace specificoperationservice
                 }));
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddTransient<IWritePlc,WritePlc>();
+            services.AddTransient<IOtherApi,OtherApi>();
+            services.AddTransient<IInterlevelDb,InterlevelDb>();
+            services.AddTransient<IMonitoringTag,MonitoringTag>();
             services.AddMvc();
         }
 

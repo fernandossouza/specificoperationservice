@@ -23,7 +23,12 @@ namespace specificoperationservice.Controllers
             try{
             
 
-            var returnWrite = await _writePlc.WriteOrder(productionOrder);
+            var (returnWrite, stringErro) = await _writePlc.WriteOrder(productionOrder);
+
+            if(!returnWrite)
+            {
+                return StatusCode(500, stringErro);
+            }
 
             return Ok(returnWrite);
             }

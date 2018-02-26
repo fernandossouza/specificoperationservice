@@ -19,14 +19,19 @@ namespace specificoperationservice.Service
     public class WritePlc : IWritePlc
     {
         private readonly IConfiguration _configuration;
+        private readonly IOtherApi _otherApi;
+        private readonly IInterlevelDb _interleverDb;
 
-        public WritePlc(IConfiguration configuration)
+        public WritePlc(IConfiguration configuration,IOtherApi otherApi, IInterlevelDb interlevelDb)
         {
             _configuration = configuration;
+            _otherApi = otherApi;
+            _interleverDb = interlevelDb;
         }
 
-        public async Task<bool> WriteOrder(ProductionOrder productionOrder)
+        public async Task<(bool,string)> WriteOrder(ProductionOrder productionOrder)
         {
+            try{
             bool returnBool;
 
             switch(productionOrder.typeDescription.ToString().ToLower())
@@ -42,7 +47,12 @@ namespace specificoperationservice.Service
                     break;
             }
             
-            return returnBool;
+            return (returnBool,string.Empty);
+            }
+            catch(Exception ex)
+            {
+                return (false,ex.ToString());
+            }
         }
 
         private async Task<bool> OpTypeTira(ProductionOrder productionOrder)
@@ -56,9 +66,9 @@ namespace specificoperationservice.Service
                 {
                     string value = phaseParameter.setupValue;
 
-                    var tag = await GetTagApi(phaseParameter.tag.tagId);
+                    var tag = await _otherApi.GetTag(phaseParameter.tag.tagId);
 
-                    var thingGroup = await GetThingGroupApi(phaseParameter.tag.thingGroup.thingGroupId);
+                    var thingGroup = await _otherApi.GetThingGroup(phaseParameter.tag.thingGroup.thingGroupId);
 
                     foreach(var thingId in thingGroup.thingsIds)
                     {
@@ -67,14 +77,14 @@ namespace specificoperationservice.Service
                         thing = thingsGetList.Where(x=> x.thingId == thingId).FirstOrDefault();
                         if(thing == null)
                         {
-                            thing = await GetThingApi(thingId);
+                            thing = await _otherApi.GetThing(thingId);
                             if(thing != null)
                                 thingsGetList.Add(thing);
                         }
                         if(string.IsNullOrEmpty(thing.physicalConnection))
                             continue;
 
-                        var e = CreateCommand(value,tag.physicalTag,thing.physicalConnection);
+                        var e = _interleverDb.Write(value,tag.physicalTag,thing.physicalConnection);
                     }
 
                 }
@@ -82,97 +92,6 @@ namespace specificoperationservice.Service
             return true;
         }
 
-        private async Task<bool> CreateCommand(string value, string tag, string workstation)
-        {
-            string command = string.Empty;
-
-            command = "SELECT public.spi_sp_write_per_name('" + tag + "','" + workstation + "','" + value + "')";
-            var result = await ExecuteCommand(command);
-
-            return true;
-
-        }
-
-        private async Task<IEnumerable<dynamic>> ExecuteCommand(string commandSQL)
-        {
-          
-            IEnumerable<dynamic> dbResult;
-            using(IDbConnection dbConnection = new NpgsqlConnection(_configuration["stringInterlevelConnection"]))
-            {
-                dbConnection.Open();
-                dbResult = await dbConnection.QueryAsync<dynamic>(commandSQL);
-            }
-
-            return dbResult;
-           
             
-        }
-
-        private async Task<Tag> GetTagApi(int tagId)
-        {
-            HttpClient client = new HttpClient();
-            Tag returnTag = null;
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var builder = new UriBuilder(_configuration["tagServiceEndpoint"]+ tagId.ToString());
-            string url = builder.ToString();
-            var result = await client.GetAsync(url);
-            switch (result.StatusCode)
-            {
-                case HttpStatusCode.OK:
-                    returnTag = JsonConvert.DeserializeObject<Tag>(await client.GetStringAsync(url));
-                    return returnTag;
-                case HttpStatusCode.NotFound:
-                    return returnTag;
-                case HttpStatusCode.InternalServerError:
-                    return returnTag;
-            }
-            return returnTag;
-        }
-
-        private async Task<Thing> GetThingApi(int thingId)
-        {
-            HttpClient client = new HttpClient();
-            Thing returnThing = null;
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var builder = new UriBuilder(_configuration["thingServiceEndpoint"]+ thingId.ToString());
-            string url = builder.ToString();
-            var result = await client.GetAsync(url);
-            switch (result.StatusCode)
-            {
-                case HttpStatusCode.OK:
-                    returnThing = JsonConvert.DeserializeObject<Thing>(await client.GetStringAsync(url));
-                    return returnThing;
-                case HttpStatusCode.NotFound:
-                    return returnThing;
-                case HttpStatusCode.InternalServerError:
-                    return returnThing;
-            }
-            return returnThing;
-        }
-
-        private async Task<ThingGroup> GetThingGroupApi(int groupId)
-        {
-            HttpClient client = new HttpClient();
-            ThingGroup returnGroups = null;
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var builder = new UriBuilder(_configuration["thingGroupServiceEndpoint"] + groupId);
-            string url = builder.ToString();
-            var result = await client.GetAsync(url);
-            switch (result.StatusCode)
-            {
-                case HttpStatusCode.OK:
-                    returnGroups = JsonConvert.DeserializeObject<ThingGroup>(await client.GetStringAsync(url));
-                    return returnGroups;
-                case HttpStatusCode.NotFound:
-                    return returnGroups;
-                case HttpStatusCode.InternalServerError:
-                    return returnGroups;
-            }
-            return returnGroups;
-        }
-        
     }
 }

@@ -1,0 +1,61 @@
+using System.Collections.Generic;
+using System.Data;
+using System;
+using System.Threading.Tasks;
+using Dapper;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
+using specificoperationservice.Service.Interface;
+
+namespace specificoperationservice.Service
+{
+    public class InterlevelDb : IInterlevelDb
+    {
+        private readonly IConfiguration _configuration;
+        public InterlevelDb(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+        public async Task<bool> Write(string value, string tag, string workstation)
+        {
+            string command = string.Empty;
+
+            command = "SELECT public.spi_sp_write_per_name('" + tag + "','" + workstation + "','" + value + "')";
+            var result = await ExecuteCommand(command);
+
+            return true;
+        }
+        public async Task<string> Read(string tagName)
+        {
+            string command = string.Empty;
+            try
+            {
+                 command = "SELECT \"TagValue\" FROM public.\"SPI_TB_IL_ADDRESS\" WHERE lower(\"TagName\") = '"+ tagName +"'";
+                var result = await ExecuteCommand(command);
+                var details = ((IDictionary<string, object>)result.AsList()[0]);            
+                return details["TagValue"].ToString();
+            }
+            catch (System.Exception)
+            {
+                Console.WriteLine("Não encontrado o valore da tag " + tagName);
+                return string.Empty;
+            }
+           
+        }
+
+        private async Task<IEnumerable<dynamic>> ExecuteCommand(string commandSQL)
+        {
+          
+            IEnumerable<dynamic> dbResult;
+            using(IDbConnection dbConnection = new NpgsqlConnection(_configuration["stringInterlevelConnection"]))
+            {
+                dbConnection.Open();
+                dbResult = await dbConnection.QueryAsync<dynamic>(commandSQL);
+            }
+
+            return dbResult;
+           
+            
+        }    
+    }
+}
