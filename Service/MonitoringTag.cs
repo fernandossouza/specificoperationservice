@@ -20,40 +20,40 @@ namespace specificoperationservice.Service
         private readonly IConfiguration _configuration;
         private readonly IOtherApi _otherApi;
         private readonly IInterlevelDb _interlevelDb;
+        List<Thing> thingList;
         public MonitoringTag(IConfiguration configuration,IOtherApi otherApi, IInterlevelDb interlevelDb)
         {
             _configuration = configuration;
             _otherApi = otherApi;
             _interlevelDb = interlevelDb;
+            thingList = new List<Thing>();
         }
 
         public async Task<(bool,string)> ReadTags()
         {
             DateTime dateMonitoring = DateTime.Now;
-            List<Thing> thingList = new List<Thing>();
-            // faz get nas tags de input
+            // faz get nas tags de input            
             var tagsInput = await _otherApi.GetTagList("input");
+
+            //Faz get dos alarm
+            var thingAlarms = await _otherApi.GetAlarm();
+
 
             foreach(var tag in tagsInput)
             {
                 foreach(var thingId in tag.thingGroup.thingsIds)
                 {
+                    DateTime dt = DateTime.Now;
                     // Verifica se a thing existe na lista..... se não existir faz get e adiciona na lista
-                    
-                    var thing = thingList.Where(x=>x.thingId == thingId).FirstOrDefault();
-
+                    Console.WriteLine("antes thing" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
+                    var thing = ReturnThing(thingId);
                     if(thing == null)
                     {
-                        var thingGet = await _otherApi.GetThing(thingId);
-                        if(thingGet == null)
-                            continue;
-
-                        thing = thingGet;
-                        thingList.Add(thing);
+                        return (false,"Thing não encontrada. Thing Id = " + thingId.ToString());
                     }
-
+                    Console.WriteLine("depois thing" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
                     var valueTag = await _interlevelDb.Read(tag.physicalTag);
-
+                    Console.WriteLine("depois select" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
                     var tagHistorian = new {
                         thingId = thingId,
                         tag = tag.tagName,
@@ -61,13 +61,50 @@ namespace specificoperationservice.Service
                         group = tag.tagGroup,
                         date = dateMonitoring.Ticks
                     };
-
-                    var post = _otherApi.PostHistorian(tagHistorian);
+                    Console.WriteLine("antes post" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
+                    var post = await _otherApi.PostHistorian(tagHistorian);
+                    Console.WriteLine("depois post" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
                 }
 
             }
 
+           
+
+            foreach(var thingAlarm in thingAlarms)
+            {
+                foreach(var alarm in thingAlarm.alarms)
+                {
+                     var tagHistorian = new {
+                        thingId = alarm.thingId,
+                        tag = alarm.alarmName,
+                        value = alarm.alarmDescription,
+                        group = "Alarme",
+                        date = dateMonitoring.Ticks
+                    };
+
+                    var post = _otherApi.PostHistorian(tagHistorian);
+                }
+            }
+
+
             return(true,string.Empty);
+        }
+
+        private async Task<Thing> ReturnThing(int thingId)
+        {
+            var thing = thingList.Where(x=>x.thingId == thingId).FirstOrDefault();
+            if(thing == null)
+                {
+                    var thingGet = await _otherApi.GetThing(thingId);
+                
+                    if(thingGet == null)
+                        return null;
+
+                    thingList.Add(thingGet);                        
+                    return thingGet;
+                }
+            return thing;
+
         }
         
     }

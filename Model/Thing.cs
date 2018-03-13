@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace specificoperationservice.Model
@@ -12,5 +13,6 @@ namespace specificoperationservice.Model
         [NotMapped]
         public Thing currentThing { get; set; }
         public string physicalConnection{get;set;}
+        public List<Alarm> alarms{get;set;}
     }
 }

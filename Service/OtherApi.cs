@@ -43,6 +43,29 @@ namespace specificoperationservice.Service
             }
             return returnThing;
         }
+
+        public async Task<List<Thing>> GetAlarm()
+        {
+            HttpClient client = new HttpClient();
+            List<Thing> returnThingAlarm = null;
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var builder = new UriBuilder(_configuration["AlarmServiceEndpoint"]);
+            string url = builder.ToString();
+            var result = await client.GetAsync(url);
+            switch (result.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    returnThingAlarm = JsonConvert.DeserializeObject<List<Thing>>(await client.GetStringAsync(url));
+                    return returnThingAlarm;
+                case HttpStatusCode.NotFound:
+                    return returnThingAlarm;
+                case HttpStatusCode.InternalServerError:
+                    return returnThingAlarm;
+            }
+            return returnThingAlarm;
+        }
+
         public async Task<Tag> GetTag(int tagId)
         {
             HttpClient client = new HttpClient();

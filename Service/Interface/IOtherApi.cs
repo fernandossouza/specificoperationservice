@@ -6,6 +6,7 @@ namespace specificoperationservice.Service.Interface
     public interface IOtherApi
     {
          Task<Thing> GetThing(int thingId);
+         Task<List<Thing>> GetAlarm();
          Task<Tag> GetTag(int tagId);
          Task<List<Tag>> GetTagList(string tagType);
          Task<ThingGroup> GetThingGroup(int groupId);
