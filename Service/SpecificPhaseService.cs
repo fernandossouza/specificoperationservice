@@ -100,6 +100,34 @@ namespace specificoperationservice.Service
             return specificPhase;
         }
 
+        public async Task<(SpecificParameter,string)> UpdateSpecificParameter(int phaseId,SpecificParameter specificParameter)
+        {
+            var (status,stringErro) =  await DeleteSpecificParameter(phaseId,specificParameter);
+            if(status)
+            {
+                specificParameter = await AddParameter(specificParameter);
+                return(specificParameter,string.Empty);
+            }
+            return(specificParameter,stringErro);
+        }
+
+        public async Task<(bool,string)> DeleteSpecificParameter(int phaseId,SpecificParameter specificParameter)
+        {
+            var phase = await _otherApiService.GetPhase(phaseId);
+            var phaseParameterList = phase.phaseParameters.ToList();
+
+            var phaseParameterDistinct = phaseParameterList.GroupBy(x=>x.tag.tagGroup);
+
+            var phaseParameterDeleteList = phaseParameterDistinct.Where(x=>x.Key == specificParameter.tagGroup).FirstOrDefault();
+
+            foreach (var phaseParameter in phaseParameterDeleteList)
+            {
+                if(! await _otherApiService.DeletePhaseParameter(phaseId,phaseParameter))
+                    return (false,"Erro in Delete Tag");
+            }
+            return (true,string.Empty);
+        }
+
         private PhaseParameter ReturnIdTag (string tagGroup,string tagDescription,List<Tag> tagList)
         {
             var tag = tagList.Where(x => x.tagGroup.ToLower() == tagGroup.ToLower()

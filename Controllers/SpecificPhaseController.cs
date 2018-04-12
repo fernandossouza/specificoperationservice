@@ -45,5 +45,33 @@ namespace specificoperationservice.Controllers
             return Ok(specificPhase);
 
         }
+
+        [HttpDelete("{phaseId}")]
+        public async Task<IActionResult> Delete(int phaseId,[FromBody]SpecificParameter specificParameter)
+        {
+            var (status,stringErro) = await _specificPhaseService.DeleteSpecificParameter(phaseId,specificParameter);
+
+            if(status == false)
+            {
+                return StatusCode(500,stringErro); 
+            }
+
+            return Ok();
+
+        }
+
+        [HttpPut("{phaseId}")]
+        public async Task<IActionResult> Put(int phaseId,[FromBody]SpecificParameter specificParameter)
+        {
+            var (status,stringErro) = await _specificPhaseService.UpdateSpecificParameter(phaseId,specificParameter);
+
+            if(status == null)
+            {
+                return StatusCode(500,stringErro); 
+            }
+
+            return Ok();
+
+        }
     }
 }

@@ -6,5 +6,7 @@ namespace specificoperationservice.Service.Interface
     {
          Task<SpecificParameter> AddParameter(SpecificParameter specificParameter);
          Task<SpecificPhase> GetSpecificPhase(int phaseId);
+         Task<(SpecificParameter,string)> UpdateSpecificParameter(int phaseId,SpecificParameter specificParameter);
+         Task<(bool,string)> DeleteSpecificParameter(int phaseId,SpecificParameter specificParameter);
     }
 }

@@ -200,5 +200,26 @@ namespace specificoperationservice.Service
             return phaseParameterNew;
         }
 
+        public async Task<bool> DeletePhaseParameter(int phaseId,PhaseParameter phaseParameter)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var builder = new UriBuilder(_configuration["PostPhaseParameter"]+phaseId);
+            HttpRequestMessage request = new HttpRequestMessage
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(phaseParameter).ToString(), Encoding.UTF8,"application/json"),
+                Method = HttpMethod.Delete,
+                RequestUri = new Uri(builder.ToString())
+            };
+
+            var result = await client.SendAsync(request);
+            
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+            return false;
+        }
+
     }
 }

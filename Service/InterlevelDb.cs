@@ -82,7 +82,7 @@ namespace specificoperationservice.Service
             try
             {
                 
-                var result = await _table.Where(x=>x.tagName == tagName).FirstOrDefault();
+                var result = _table.Where(x=>x.tagName == tagName).FirstOrDefault();
                
                if(result == null)
                {

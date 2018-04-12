@@ -13,5 +13,6 @@ namespace specificoperationservice.Service.Interface
          Task<ThingGroup> GetThingGroup(int groupId);
          Task<bool> PostHistorian(dynamic json);
          Task<PhaseParameter> PostPhaseParameter(PhaseParameter phaseParameter);
+         Task<bool> DeletePhaseParameter(int phaseId,PhaseParameter phaseParameter);
     }
 }
