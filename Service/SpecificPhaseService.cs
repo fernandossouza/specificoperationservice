@@ -69,6 +69,7 @@ namespace specificoperationservice.Service
                 foreach (var phaseParameter in phaseParameterGroup)
                 {
                     specificParameter.tagGroup = phaseParameter.tag.tagGroup;
+                    specificParameter.thingGroupId = phaseParameter.tag.thingGroupId;
 
                     switch (phaseParameter.tag.tagDescription)
                     {
