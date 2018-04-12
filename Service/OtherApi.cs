@@ -137,6 +137,28 @@ namespace specificoperationservice.Service
             return returnGroups;
         }
 
+        public async Task<Phase> GetPhase(int phaseId)
+        {
+          HttpClient client = new HttpClient();
+            Phase returnPhase = null;
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var builder = new UriBuilder(_configuration["GetPhase"] + phaseId);
+            string url = builder.ToString();
+            var result = await client.GetAsync(url);
+            switch (result.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    returnPhase = JsonConvert.DeserializeObject<Phase>(await client.GetStringAsync(url));
+                    return returnPhase;
+                case HttpStatusCode.NotFound:
+                    return returnPhase;
+                case HttpStatusCode.InternalServerError:
+                    return returnPhase;
+            }
+            return returnPhase;
+        }
+
         public async Task<bool> PostHistorian(dynamic json)
         {
             HttpClient client = new HttpClient();
@@ -158,6 +180,24 @@ namespace specificoperationservice.Service
             }
             return false;
 
+        }
+
+        public async Task<PhaseParameter> PostPhaseParameter(PhaseParameter phaseParameter)
+        {
+            PhaseParameter phaseParameterNew =null;
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpContent contentPost = new StringContent(JsonConvert.SerializeObject(phaseParameter).ToString(), Encoding.UTF8,"application/json");
+            var builder = new UriBuilder(_configuration["PostPhaseParameter"]+ _configuration["PhaseLinhaId"]);
+            string url = builder.ToString();
+            var result = await client.PostAsync(url,contentPost);
+            
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                phaseParameterNew = JsonConvert.DeserializeObject<PhaseParameter>(await result.Content.ReadAsStringAsync());
+            }
+            return phaseParameterNew;
         }
 
     }

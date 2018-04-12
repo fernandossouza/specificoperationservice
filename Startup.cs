@@ -38,6 +38,7 @@ namespace specificoperationservice
             services.AddTransient<IOtherApi,OtherApi>();
             services.AddTransient<IInterlevelDb,InterlevelDb>();
             services.AddTransient<IMonitoringTag,MonitoringTag>();
+            services.AddTransient<ISpecificPhaseService,SpecificPhaseService>();
             services.AddMvc();
         }
 

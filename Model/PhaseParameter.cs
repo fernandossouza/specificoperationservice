@@ -9,6 +9,7 @@ namespace specificoperationservice.Model
         [Key]
         [JsonIgnore]
         public int internalId { get; set; }
+        public int phaseParameterId{get;set;}
         [Required]
         [MaxLength(50)]
         public string setupValue { get; set; }
@@ -22,5 +23,6 @@ namespace specificoperationservice.Model
         [MaxLength(50)]
         public string maxValue { get; set; }
         public Tag tag { get; set; }
+        public int tagId{get;set;}
     }
 }

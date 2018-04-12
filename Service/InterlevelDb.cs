@@ -54,7 +54,7 @@ namespace specificoperationservice.Service
             catch (Exception ex)
             {
                 Console.WriteLine("Não encontrado o valore da tag ");
-                
+                Console.WriteLine(ex.ToString());
             }
            
         }
@@ -82,7 +82,7 @@ namespace specificoperationservice.Service
             try
             {
                 
-                var result = _table.Where(x=>x.tagName == tagName).FirstOrDefault();
+                var result = await _table.Where(x=>x.tagName == tagName).FirstOrDefault();
                
                if(result == null)
                {

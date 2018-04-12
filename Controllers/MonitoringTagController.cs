@@ -18,7 +18,7 @@ namespace specificoperationservice.Controllers
             _monitoringTagService = monitoringTagService;
         }
 
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> Post()
         {
             var (returnBool,returnString) = await _monitoringTagService.ReadTags();
