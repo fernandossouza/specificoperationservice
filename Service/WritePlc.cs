@@ -59,29 +59,40 @@ namespace specificoperationservice.Service
         {
             List<Thing> thingsGetList = new List<Thing>();
             var phases = productionOrder.recipe.phases;
-
+            Console.WriteLine("Phase: ------------------------------------------------------------ ");
+            Console.WriteLine("Phase-> " +JsonConvert.SerializeObject(phases).ToString() );
             foreach (var phase in phases)
             {
                 foreach(var phaseParameter in phase.phaseParameters)
                 {
+                    Console.WriteLine("phaseParameter: ------------------------------------------------------------ ");
+                    Console.WriteLine("phaseParameter-> " +JsonConvert.SerializeObject(phaseParameter).ToString() );
                     string value = phaseParameter.setupValue;
 
                     var tag = await _otherApi.GetTag(phaseParameter.tag.tagId);
-
-                    var thingGroup = await _otherApi.GetThingGroup(phaseParameter.tag.thingGroup.thingGroupId);
-
+                    //var tag = phaseParameter.tag;
+                    Console.WriteLine("tag: ------------------------------------------------------------ ");
+                    Console.WriteLine("tag-> " +JsonConvert.SerializeObject(tag).ToString() );
+                    var thingGroup = await _otherApi.GetThingGroup(tag.thingGroupId);
+                    Console.WriteLine("thingGroup: ------------------------------------------------------------ ");
+                   
                     foreach(var thingId in thingGroup.thingsIds)
                     {
-                        Thing thing;
-
+                        Console.WriteLine("Foi no Foreach");
+                        Thing thing =null;
+                        
                         thing = thingsGetList.Where(x=> x.thingId == thingId).FirstOrDefault();
+                        Console.WriteLine("thingId" +thingId.ToString());
                         if(thing == null)
                         {
+                            Console.WriteLine("get na thing");
                             thing = await _otherApi.GetThing(thingId);
+                            Console.WriteLine(JsonConvert.SerializeObject(await _otherApi.GetThing(thingId)).ToString() );
                             if(thing != null)
                                 thingsGetList.Add(thing);
                         }
-                        if(string.IsNullOrEmpty(thing.physicalConnection))
+                        Console.WriteLine(JsonConvert.SerializeObject(thing).ToString() );
+                        if(string.IsNullOrEmpty(thing.physicalConnection) || string.IsNullOrEmpty(tag.physicalTag))
                             continue;
 
                         var e = _interleverDb.Write(value,tag.physicalTag,thing.physicalConnection);
@@ -89,6 +100,9 @@ namespace specificoperationservice.Service
 
                 }
             }
+            // envia o trigger para o PLC
+            var trigger = _configuration["stringInterlevelConnection"];
+            var triggerPlc = _interleverDb.Write("4",trigger,"Linha");
             return true;
         }
 

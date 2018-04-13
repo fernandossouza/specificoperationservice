@@ -22,11 +22,12 @@ namespace specificoperationservice.Service
         }
         public async Task<bool> Write(string value, string tag, string workstation)
         {
+            Console.Write("Fila do IL");
             string command = string.Empty;
 
             command = "SELECT public.spi_sp_write_per_name('" + tag + "','" + workstation + "','" + value + "')";
             var result = await ExecuteCommand(command);
-
+            Console.Write(result.ToString());
             return true;
         }
 
