@@ -9,21 +9,17 @@ using specificoperationservice.Service.Interface;
 namespace specificoperationservice.Controllers
 {
     [Route("api/[controller]")]
-    public class MonitoringTagController : Controller
-    {
+    public class MonitoringTagController : Controller{
         private readonly IMonitoringTag _monitoringTagService;
 
-        public MonitoringTagController(IMonitoringTag monitoringTagService)
-        {
+        public MonitoringTagController(IMonitoringTag monitoringTagService){
             _monitoringTagService = monitoringTagService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Post()
-        {
+        public async Task<IActionResult> Get(){
             var (returnBool,returnString) = await _monitoringTagService.ReadTags();
             return Ok();
-
         }
         
     }
