@@ -18,13 +18,11 @@ namespace specificoperationservice.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] TagEndPointModel tag)
-        {            
-            var specificParameterCreated = await interlevelDb.Write(tag.value, tag.address, tag.workstation);
-
-
-            return Created($"api/specificPhase/{specificParameter.thingGroupId}", specificParameter);
-
+        [Produces("application/json")]
+        public async Task<IActionResult> Post([FromBody] TagEndPointModel tag){                                                
+            if(await interlevelDb.Write(tag.value, tag.address, tag.workstation))
+                return Ok();
+            return BadRequest();    
         }
 
     }
