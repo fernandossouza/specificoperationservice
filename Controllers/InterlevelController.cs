@@ -25,5 +25,13 @@ namespace specificoperationservice.Controllers
             return BadRequest();    
         }
 
+        [HttpGet]
+        [Produces("application/json")]
+        public async Task<IActionResult> Get(string tag){   
+            Console.WriteLine();
+            Console.WriteLine("Tag = " + tag);                                             
+            Console.WriteLine();
+            return Ok(await interlevelDb.Read(tag));                            
+        }
     }
 }

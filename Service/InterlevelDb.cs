@@ -82,11 +82,11 @@ namespace specificoperationservice.Service
             try
             {
                 
-                var result = _table.Where(x=>x.tagName == tagName).FirstOrDefault();
+                var result = _table.Where(x=>x.tagName == tagName.ToLower()).FirstOrDefault();
                
                if(result == null)
                {
-                   Console.WriteLine("Não encontrado o valore da tag " + tagName);
+                   Console.WriteLine("Não encontrado o valore da tag " + tagName.ToLower());
                 return string.Empty;
                }
 
