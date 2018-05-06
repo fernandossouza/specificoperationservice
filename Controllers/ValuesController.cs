@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace specificoperationservice.Controllers
 {
@@ -18,9 +19,12 @@ namespace specificoperationservice.Controllers
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value";
+            //return "value";
+            teste t = new teste();
+            t.BindingType="foi";
+            return Ok(t);
         }
 
         // POST api/values
@@ -40,5 +44,10 @@ namespace specificoperationservice.Controllers
         public void Delete(int id)
         {
         }
+    }
+
+    public class teste{
+        [JsonProperty(PropertyName = "binding type")]
+        public string BindingType { get; set; }
     }
 }

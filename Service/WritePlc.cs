@@ -101,7 +101,7 @@ namespace specificoperationservice.Service
                 }
             }
             // envia o trigger para o PLC
-            var trigger = _configuration["stringInterlevelConnection"];
+            var trigger = _configuration["TagIdTrigger"];
             var triggerPlc = _interleverDb.Write("4",trigger,"Linha");
             return true;
         }
