@@ -31,7 +31,10 @@ namespace specificoperationservice.Controllers
             Console.WriteLine();
             Console.WriteLine("Tag = " + tag);                                             
             Console.WriteLine();
-            return Ok(await interlevelDb.Read(tag));                            
+            var value= new{
+                value = await interlevelDb.Read(tag)
+            };
+            return Ok(value);                            
         }
     }
 }

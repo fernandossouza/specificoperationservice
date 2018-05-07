@@ -39,6 +39,7 @@ namespace specificoperationservice
             services.AddTransient<IInterlevelDb,InterlevelDb>();
             services.AddTransient<IMonitoringTag,MonitoringTag>();
             services.AddTransient<ISpecificPhaseService,SpecificPhaseService>();
+            services.AddTransient<IWriteLigaPlc,WriteLigaPlc>();
             services.AddMvc();
         }
 
