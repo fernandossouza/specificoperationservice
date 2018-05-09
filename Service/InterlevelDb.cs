@@ -45,7 +45,7 @@ namespace specificoperationservice.Service
                  var details = ((IDictionary<string, object>)tag);   
                     var t = new {
                         tagName = details["lower"].ToString(),
-                        tagValue = details["TagValue"].ToString() 
+                        tagValue = (details["TagValue"] == null)?"": details["TagValue"].ToString() 
                     };
 
                     _table.Add(t);
