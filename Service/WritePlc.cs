@@ -57,6 +57,11 @@ namespace specificoperationservice.Service
 
         private async Task<bool> OpTypeTira(ProductionOrder productionOrder)
         {
+            var trigger = _configuration["TagIdTrigger"];
+            // Finaliza Ordem anterior
+            var triggerPlc = _interleverDb.Write("2",trigger,"Linha");
+
+
             List<Thing> thingsGetList = new List<Thing>();
             var phases = productionOrder.recipe.phases;
             Console.WriteLine("Phase: ------------------------------------------------------------ ");
@@ -100,9 +105,8 @@ namespace specificoperationservice.Service
 
                 }
             }
-            // envia o trigger para o PLC
-            var trigger = _configuration["TagIdTrigger"];
-            var triggerPlc = _interleverDb.Write("4",trigger,"Linha");
+            // envia o trigger para o PLC           
+            var triggerPlc = _interleverDb.Write("5",trigger,"Linha");
             return true;
         }
 

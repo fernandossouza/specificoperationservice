@@ -31,12 +31,24 @@ namespace specificoperationservice.Service
 
         public async Task<(bool,string)> ReadTags()
         {
+            string numeroRolo="";
+            string numeroOP = "";
             DateTime dateMonitoring = DateTime.Now;
             // faz get nas tags de input            
             var tagsInput = await _otherApi.GetTagList("input");
 
             //Faz get dos alarm
             var thingAlarms = await _otherApi.GetAlarm();
+
+            //Faz get da tag com o número do rolo
+            var tagRolo = await _otherApi.GetTag(Convert.ToInt32(_configuration["IdTagRolo"]));
+            if(tagRolo != null)
+                numeroRolo = await _interlevelDb.Read(tagRolo.physicalTag);
+            //Faz get da tag com o número da OP
+            var tagOP = await _otherApi.GetTag(Convert.ToInt32(_configuration["IdTagOP"]));
+            if(tagOP != null)
+                numeroOP = await _interlevelDb.Read(tagOP.physicalTag);
+            
 
 
             foreach(var tag in tagsInput)
@@ -64,6 +76,25 @@ namespace specificoperationservice.Service
                     Console.WriteLine("antes post" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
                     var post = await _otherApi.PostHistorian(tagHistorian);
                     Console.WriteLine("depois post" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
+                    var tagHistorianRolo = new {
+                        thingId = thingId,
+                        tag = "rolo",
+                        value = numeroRolo,
+                        group = "Linha",
+                        date = dateMonitoring.Ticks
+                    };
+
+                    var post2 = await _otherApi.PostHistorian(tagHistorianRolo);
+
+                    var tagHistorianOP = new {
+                        thingId = thingId,
+                        tag = "ordem",
+                        value = numeroOP,
+                        group = "Linha",
+                        date = dateMonitoring.Ticks
+                    };
+
+                    var post3 = await _otherApi.PostHistorian(tagHistorianOP);
                 }
 
             }
