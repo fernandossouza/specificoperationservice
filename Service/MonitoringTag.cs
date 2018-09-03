@@ -57,15 +57,22 @@ namespace specificoperationservice.Service
                 {
                     DateTime dt = DateTime.Now;
                     // Verifica se a thing existe na lista..... se não existir faz get e adiciona na lista
-                    Console.WriteLine("antes thing" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
+                    //Console.WriteLine("antes thing" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
                     var thing = ReturnThing(thingId);
                     if(thing == null)
                     {
+                        Console.WriteLine("");
+                        Console.WriteLine("");
+                        Console.WriteLine("");
+                        Console.WriteLine("Retornou não encontrado thing");
+                        Console.WriteLine("");
+                        Console.WriteLine("");
+                        Console.WriteLine("");
                         return (false,"Thing não encontrada. Thing Id = " + thingId.ToString());
                     }
-                    Console.WriteLine("depois thing" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
+                    //Console.WriteLine("depois thing" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
                     var valueTag = await _interlevelDb.Read(tag.physicalTag);
-                    Console.WriteLine("depois select" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
+                    //Console.WriteLine("depois select" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
                     var tagHistorian = new {
                         thingId = thingId,
                         tag = tag.tagName,
@@ -73,8 +80,9 @@ namespace specificoperationservice.Service
                         group = tag.tagGroup,
                         date = dateMonitoring.Ticks
                     };
-                    Console.WriteLine("antes post" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
+                    //Console.WriteLine("antes post" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
                     var post = await _otherApi.PostHistorian(tagHistorian);
+
                     Console.WriteLine("depois post" + new TimeSpan((DateTime.Now - dt).Ticks).TotalMilliseconds.ToString());
                     var tagHistorianRolo = new {
                         thingId = thingId,
