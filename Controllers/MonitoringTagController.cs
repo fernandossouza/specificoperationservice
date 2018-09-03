@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using specificoperationservice.Model;
 using specificoperationservice.Service.Interface;
 
-namespace specificoperationservice.Controllers
-{
+namespace specificoperationservice.Controllers{
     [Route("api/[controller]")]
     public class MonitoringTagController : Controller{
         private readonly IMonitoringTag _monitoringTagService;

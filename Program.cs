@@ -19,7 +19,7 @@ namespace specificoperationservice
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseUrls ("http://*:5013")
+                //.UseUrls ("http://*:5013")
                 .UseStartup<Startup>()
                 .Build();
     }
