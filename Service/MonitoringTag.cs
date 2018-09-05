@@ -33,6 +33,7 @@ namespace specificoperationservice.Service
         {
             string numeroRolo="";
             string numeroOP = "";
+            string numeroCodTira = "";
             DateTime dateMonitoring = DateTime.Now;
             // faz get nas tags de input            
             var tagsInput = await _otherApi.GetTagList("input");
@@ -48,6 +49,10 @@ namespace specificoperationservice.Service
             var tagOP = await _otherApi.GetTag(Convert.ToInt32(_configuration["IdTagOP"]));
             if(tagOP != null)
                 numeroOP = await _interlevelDb.Read(tagOP.physicalTag);
+            //Faz get da tag com o código da Tira
+            var tagCodTira = await _otherApi.GetTag(Convert.ToInt32(_configuration["IdTagCodTira"]));
+            if(tagCodTira != null)
+                numeroCodTira = await _interlevelDb.Read(tagCodTira.physicalTag);
             
 
 
@@ -92,7 +97,7 @@ namespace specificoperationservice.Service
                         date = dateMonitoring.Ticks
                     };
 
-                    var post2 = await _otherApi.PostHistorian(tagHistorianRolo);
+                    var postNumRolo = await _otherApi.PostHistorian(tagHistorianRolo);
 
                     var tagHistorianOP = new {
                         thingId = thingId,
@@ -102,7 +107,17 @@ namespace specificoperationservice.Service
                         date = dateMonitoring.Ticks
                     };
 
-                    var post3 = await _otherApi.PostHistorian(tagHistorianOP);
+                    var postNumOp = await _otherApi.PostHistorian(tagHistorianOP);
+
+                     var tagHistorianCodTira = new {
+                        thingId = thingId,
+                        tag = "codTira",
+                        value = numeroCodTira,
+                        group = "Linha",
+                        date = dateMonitoring.Ticks
+                    };
+
+                    var postCodTira = await _otherApi.PostHistorian(tagHistorianCodTira);
                 }
 
             }

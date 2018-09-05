@@ -65,8 +65,8 @@ namespace specificoperationservice.Service{
 
 
             List<Thing> thingsGetList = new List<Thing>();
-            var trigger = _configuration["TagIdTrigger"];
-            _interleverDb.Write("2",trigger,"Linha");
+            var trigger3 = _configuration["TagIdTrigger"];
+            await _interleverDb.Write("2",trigger,"Linha");
             var phases = productionOrder.recipe.phases;
             /*Console.WriteLine("");
             Console.WriteLine("");
@@ -138,7 +138,7 @@ namespace specificoperationservice.Service{
             }
 
             // envia o trigger para o PLC           
-            var triggerPlc = _interleverDb.Write("5",trigger,"Linha");
+            var triggerPlc2 = await _interleverDb.Write("5",trigger,"Linha");
             return true;
         }
 
